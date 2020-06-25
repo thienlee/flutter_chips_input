@@ -239,6 +239,10 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
     widget.onChanged(_chips.toList(growable: false));
   }
 
+  updateText(T data, {bool replaceText = false}) {
+    _updateTextInputState(replaceText: replaceText);
+  }
+
   void deleteChip(T data) {
     if (widget.enabled) {
       _chips.remove(data);
