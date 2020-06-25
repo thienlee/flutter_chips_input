@@ -31,30 +31,18 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     const mockResults = <AppProfile>[
-      AppProfile('John Doe', 'jdoe@flutter.io',
-          'https://d2gg9evh47fn9z.cloudfront.net/800px_COLOURBOX4057996.jpg'),
-      AppProfile('Paul', 'paul@google.com',
-          'https://mbtskoudsalg.com/images/person-stock-image-png.png'),
-      AppProfile('Fred', 'fred@google.com',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Brian', 'brian@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('John', 'john@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Thomas', 'thomas@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Nelly', 'nelly@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Marie', 'marie@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Charlie', 'charlie@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Diana', 'diana@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Ernie', 'ernie@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-      AppProfile('Gina', 'fred@flutter.io',
-          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('John Doe', 'jdoe@flutter.io', 'https://d2gg9evh47fn9z.cloudfront.net/800px_COLOURBOX4057996.jpg'),
+      AppProfile('Paul', 'paul@google.com', 'https://mbtskoudsalg.com/images/person-stock-image-png.png'),
+      AppProfile('Fred', 'fred@google.com', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Brian', 'brian@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('John', 'john@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Thomas', 'thomas@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Nelly', 'nelly@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Marie', 'marie@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Charlie', 'charlie@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Diana', 'diana@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Ernie', 'ernie@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+      AppProfile('Gina', 'fred@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
     ];
 
     return Scaffold(
@@ -72,8 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ChipsInput(
                 key: _chipKey,
                 initialValue: [
-                  AppProfile('John Doe', 'jdoe@flutter.io',
-                      'https://d2gg9evh47fn9z.cloudfront.net/800px_COLOURBOX4057996.jpg'),
+                  AppProfile('John Doe', 'jdoe@flutter.io', 'https://d2gg9evh47fn9z.cloudfront.net/800px_COLOURBOX4057996.jpg'),
                 ],
                 // autofocus: true,
                 // allowChipEditing: true,
@@ -81,8 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 textCapitalization: TextCapitalization.words,
                 enabled: true,
                 maxChips: 5,
-                textStyle:
-                    TextStyle(height: 1.5, fontFamily: "Roboto", fontSize: 16),
+                textStyle: TextStyle(height: 1.5, fontFamily: "Roboto", fontSize: 16),
                 decoration: InputDecoration(
                   // prefixIcon: Icon(Icons.search),
                   // hintText: formControl.hint,
@@ -95,24 +81,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (query.length != 0) {
                     var lowercaseQuery = query.toLowerCase();
                     return mockResults.where((profile) {
-                      return profile.name
-                              .toLowerCase()
-                              .contains(query.toLowerCase()) ||
-                          profile.email
-                              .toLowerCase()
-                              .contains(query.toLowerCase());
+                      return profile.name.toLowerCase().contains(query.toLowerCase()) || profile.email.toLowerCase().contains(query.toLowerCase());
                     }).toList(growable: false)
-                      ..sort((a, b) => a.name
-                          .toLowerCase()
-                          .indexOf(lowercaseQuery)
-                          .compareTo(
-                              b.name.toLowerCase().indexOf(lowercaseQuery)));
+                      ..sort((a, b) => a.name.toLowerCase().indexOf(lowercaseQuery).compareTo(b.name.toLowerCase().indexOf(lowercaseQuery)));
                   }
                   // return <AppProfile>[];
                   return mockResults;
                 },
                 onChanged: (data) {
                   // print(data);
+                },
+                onTextChanged: (text) {
+                  debugPrint('Text: $text');
                 },
                 chipBuilder: (context, state, profile) {
                   return InputChip(
@@ -201,9 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),*/
               RaisedButton(
                 child: Text('Add Chip'),
-                onPressed: (){
-                  _chipKey.currentState.selectSuggestion(AppProfile('Gina', 'fred@flutter.io',
-                      'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'));
+                onPressed: () {
+                  _chipKey.currentState.selectSuggestion(AppProfile('Gina', 'fred@flutter.io', 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'));
                 },
               ),
             ],
@@ -222,11 +201,7 @@ class AppProfile {
   const AppProfile(this.name, this.email, this.imageUrl);
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AppProfile &&
-          runtimeType == other.runtimeType &&
-          name == other.name;
+  bool operator ==(Object other) => identical(this, other) || other is AppProfile && runtimeType == other.runtimeType && name == other.name;
 
   @override
   int get hashCode => name.hashCode;

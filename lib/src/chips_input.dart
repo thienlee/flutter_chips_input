@@ -9,8 +9,7 @@ import 'text_cursor.dart';
 
 typedef ChipsInputSuggestions<T> = FutureOr<List<T>> Function(String query);
 typedef ChipSelected<T> = void Function(T data, bool selected);
-typedef ChipsBuilder<T> = Widget Function(
-    BuildContext context, ChipsInputState<T> state, T data);
+typedef ChipsBuilder<T> = Widget Function(BuildContext context, ChipsInputState<T> state, T data);
 
 const kObjectReplacementChar = 0xFFFD;
 
@@ -19,9 +18,7 @@ extension on TextEditingValue {
         text.codeUnits.where((ch) => ch != kObjectReplacementChar),
       );
 
-  List<int> get replacementCharacters => text.codeUnits
-      .where((ch) => ch == kObjectReplacementChar)
-      .toList(growable: false);
+  List<int> get replacementCharacters => text.codeUnits.where((ch) => ch == kObjectReplacementChar).toList(growable: false);
 
   int get replacementCharactersCount => replacementCharacters.length;
 }
@@ -36,6 +33,7 @@ class ChipsInput<T> extends StatefulWidget {
     @required this.suggestionBuilder,
     @required this.findSuggestions,
     @required this.onChanged,
+    this.onTextChanged,
     this.onChipTapped,
     this.maxChips,
     this.textStyle,
@@ -57,8 +55,10 @@ class ChipsInput<T> extends StatefulWidget {
   final InputDecoration decoration;
   final TextStyle textStyle;
   final bool enabled;
-  final ChipsInputSuggestions findSuggestions;
+  final ChipsInputSuggestions<T> findSuggestions;
   final ValueChanged<List<T>> onChanged;
+  final ValueChanged<String> onTextChanged;
+
   @Deprecated("Will be removed in the next major version")
   final ValueChanged<T> onChipTapped;
   final ChipsBuilder<T> chipBuilder;
@@ -85,8 +85,7 @@ class ChipsInput<T> extends StatefulWidget {
   ChipsInputState<T> createState() => ChipsInputState<T>();
 }
 
-class ChipsInputState<T> extends State<ChipsInput<T>>
-    implements TextInputClient {
+class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient {
   Set<T> _chips = Set<T>();
   List<T> _suggestions;
   StreamController<List<T>> _suggestionsStreamController;
@@ -109,17 +108,14 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
         textCapitalization: widget.textCapitalization,
       );
 
-  bool get _hasInputConnection =>
-      _textInputConnection != null && _textInputConnection.attached;
+  bool get _hasInputConnection => _textInputConnection != null && _textInputConnection.attached;
 
-  bool get _hasReachedMaxChips =>
-      widget.maxChips != null && _chips.length >= widget.maxChips;
+  bool get _hasReachedMaxChips => widget.maxChips != null && _chips.length >= widget.maxChips;
 
   FocusAttachment _focusAttachment;
   FocusNode _focusNode;
 
-  FocusNode get _effectiveFocusNode =>
-      widget.focusNode ?? (_focusNode ??= FocusNode());
+  FocusNode get _effectiveFocusNode => widget.focusNode ?? (_focusNode ??= FocusNode());
 
   RenderBox get renderBox => context.findRenderObject();
 
@@ -167,10 +163,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
         var size = renderBox.size;
         var renderBoxOffset = renderBox.localToGlobal(Offset.zero);
         var topAvailableSpace = renderBoxOffset.dy;
-        var bottomAvailableSpace = MediaQuery.of(context).size.height -
-            MediaQuery.of(context).viewInsets.bottom -
-            renderBoxOffset.dy -
-            size.height;
+        var bottomAvailableSpace = MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - renderBoxOffset.dy - size.height;
         var _suggestionBoxHeight = max(topAvailableSpace, bottomAvailableSpace);
         var showTop = topAvailableSpace > bottomAvailableSpace;
         // print("showTop: $showTop" );
@@ -179,7 +172,6 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
           // compositedTransformFollowerOffset = Offset(0, -(topAvailableSpace + size.height));
           compositedTransformFollowerOffset = Offset(0, -size.height);
         }
-
         return StreamBuilder(
           stream: _suggestionsStreamController.stream,
           builder: (
@@ -258,8 +250,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
 
   void _openInputConnection() {
     if (!_hasInputConnection) {
-      _textInputConnection = TextInput.attach(this, textInputConfiguration)
-        ..setEditingState(_value);
+      _textInputConnection = TextInput.attach(this, textInputConfiguration)..setEditingState(_value);
     }
     _textInputConnection.show();
 
@@ -275,8 +266,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
     final localId = ++_searchId;
     final results = await widget.findSuggestions(value);
     if (_searchId == localId && mounted) {
-      _suggestions =
-          results.where((r) => !_chips.contains(r)).toList(growable: false);
+      _suggestions = results.where((r) => !_chips.contains(r)).toList(growable: false);
     }
     _suggestionsStreamController.add(_suggestions);
   }
@@ -291,15 +281,14 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
 
   @override
   void updateEditingValue(TextEditingValue value) {
-    // print("updateEditingValue FIRED with ${value.text}");
     _receivedRemoteTextEditingValue = value;
     var _oldTextEditingValue = _value;
     if (value.text != _oldTextEditingValue.text) {
       setState(() {
         _value = value;
+        if (widget.onTextChanged != null) widget.onTextChanged(value.text.replaceAll(String.fromCharCode(kObjectReplacementChar), ''));
       });
-      if (value.replacementCharactersCount <
-          _oldTextEditingValue.replacementCharactersCount) {
+      if (value.replacementCharactersCount < _oldTextEditingValue.replacementCharactersCount) {
         var removedChip = _chips.last;
         _chips = Set.from(_chips.take(value.replacementCharactersCount));
         widget.onChanged(_chips.toList(growable: false));
@@ -317,10 +306,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
   }
 
   void _updateTextInputState({replaceText = false, putText = ''}) {
-    final updatedText =
-        String.fromCharCodes(_chips.map((_) => kObjectReplacementChar)) +
-            "${replaceText ? '' : _value.normalCharactersText}" +
-            putText;
+    final updatedText = String.fromCharCodes(_chips.map((_) => kObjectReplacementChar)) + "${replaceText ? '' : _value.normalCharactersText}" + putText;
     setState(() {
       _value = _value.copyWith(
         text: updatedText,
@@ -328,7 +314,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
         //composing: TextRange(start: 0, end: text.length),
       );
     });
-    print(_value);
+//    print(_value);
 
     if (_textInputConnection == null) {
       _textInputConnection = TextInput.attach(this, textInputConfiguration);
@@ -391,9 +377,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
 
   @override
   Widget build(BuildContext context) {
-    var chipsChildren = _chips
-        .map<Widget>((data) => widget.chipBuilder(context, this, data))
-        .toList();
+    var chipsChildren = _chips.map<Widget>((data) => widget.chipBuilder(context, this, data)).toList();
 
     final theme = Theme.of(context);
 
@@ -410,13 +394,10 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
                 _value.normalCharactersText,
                 maxLines: 1,
                 overflow: widget.textOverflow,
-                style: widget.textStyle ??
-                    theme.textTheme.subtitle1.copyWith(height: 1.5),
+                style: widget.textStyle ?? theme.textTheme.subtitle1.copyWith(height: 1.5),
               ),
             ),
-            Flexible(
-                flex: 0,
-                child: TextCursor(resumed: _effectiveFocusNode.hasFocus)),
+            Flexible(flex: 0, child: TextCursor(resumed: _effectiveFocusNode.hasFocus)),
           ],
         ),
       ),
