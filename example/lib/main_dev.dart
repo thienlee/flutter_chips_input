@@ -41,12 +41,19 @@ class _MyHomePageState extends State<MyHomePage> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              TextField(
+                minLines: 3,
+                maxLines: 1000,
+              ),
+              Padding(padding: const EdgeInsets.only(top: 30.0)),
               ChipsInput<String>(
                 key: _chipKey,
                 initialValue: [],
                 // autofocus: true,
                 // allowChipEditing: true,
                 keyboardAppearance: Brightness.dark,
+                inputAction: TextInputAction.done,
+//                inputType: TextInputType.emailAddress,
                 enabled: true,
 //                maxChips: 5,
                 textStyle: TextStyle(height: 1.5, fontFamily: "Roboto", fontSize: 16),
@@ -60,13 +67,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 findSuggestions: (String query) {
                   return [];
                 },
-                onChanged: (data) {
-                  // print(data);
-                },
+                onChanged: (data) {},
                 onTextChanged: (text) {
-                  debugPrint('Text: $text');
                   if (text?.contains(',') == true && text.trim().length > 1) {
                     _chipKey.currentState?.selectSuggestion(text.replaceAll(',', ''));
+                  }
+                },
+                onSubmit: (TextInputAction action) {
+                  String _text = _chipKey.currentState?.text?.replaceAll(',', '');
+                  debugPrint('onSubmit: $_text');
+                  if (_text?.isNotEmpty == true && _text.trim().length > 1) {
+                    _chipKey.currentState?.selectSuggestion(_text.replaceAll(',', ''));
                   }
                 },
                 chipBuilder: (context, state, profile) {

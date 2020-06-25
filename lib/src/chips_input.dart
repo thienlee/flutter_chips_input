@@ -49,6 +49,7 @@ class ChipsInput<T> extends StatefulWidget {
     this.autofocus = false,
     this.allowChipEditing = false,
     this.focusNode,
+    this.onSubmit,
   })  : assert(maxChips == null || initialValue.length <= maxChips),
         super(key: key);
 
@@ -58,6 +59,7 @@ class ChipsInput<T> extends StatefulWidget {
   final ChipsInputSuggestions<T> findSuggestions;
   final ValueChanged<List<T>> onChanged;
   final ValueChanged<String> onTextChanged;
+  final ValueChanged<TextInputAction> onSubmit;
 
   @Deprecated("Will be removed in the next major version")
   final ValueChanged<T> onChipTapped;
@@ -118,6 +120,8 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
   FocusNode get _effectiveFocusNode => widget.focusNode ?? (_focusNode ??= FocusNode());
 
   RenderBox get renderBox => context.findRenderObject();
+
+  String get text => _value?.text?.replaceAll(String.fromCharCode(kObjectReplacementChar), '');
 
   @override
   void initState() {
@@ -290,7 +294,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
     if (value.text != _oldTextEditingValue.text) {
       setState(() {
         _value = value;
-        if (widget.onTextChanged != null) widget.onTextChanged(value.text.replaceAll(String.fromCharCode(kObjectReplacementChar), ''));
+        _onTextChanged(value.text.replaceAll(String.fromCharCode(kObjectReplacementChar), ''));
       });
       if (value.replacementCharactersCount < _oldTextEditingValue.replacementCharactersCount) {
         var removedChip = _chips.last;
@@ -327,6 +331,10 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
     // _closeInputConnectionIfNeeded(false);
   }
 
+  _onTextChanged(String text) {
+    if (widget.onTextChanged != null) widget.onTextChanged(text);
+  }
+
   @override
   void performAction(TextInputAction action) {
     switch (action) {
@@ -334,14 +342,15 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
       case TextInputAction.go:
       case TextInputAction.send:
       case TextInputAction.search:
-        if (_suggestions != null && _suggestions.isNotEmpty) {
+        /*if (_suggestions != null && _suggestions.isNotEmpty) {
           selectSuggestion(_suggestions.first);
-        }
-        // _effectiveFocusNode.unfocus();
+        }*/
+        _effectiveFocusNode.unfocus();
         break;
       default:
         break;
     }
+    if (widget.onSubmit != null) widget.onSubmit(action);
   }
 
   @override
