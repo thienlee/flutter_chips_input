@@ -50,6 +50,7 @@ class ChipsInput<T> extends StatefulWidget {
     this.allowChipEditing = false,
     this.focusNode,
     this.onSubmit,
+    this.inputConstraints,
   })  : assert(maxChips == null || initialValue.length <= maxChips),
         super(key: key);
 
@@ -78,6 +79,7 @@ class ChipsInput<T> extends StatefulWidget {
   final bool autofocus;
   final bool allowChipEditing;
   final FocusNode focusNode;
+  final BoxConstraints inputConstraints;
 
   // final Color cursorColor;
 
@@ -425,6 +427,8 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
       },
       child: SizeChangedLayoutNotifier(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -436,10 +440,13 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
                 decoration: widget.decoration,
                 isFocused: _effectiveFocusNode.hasFocus,
                 isEmpty: _value.text.length == 0 && _chips.length == 0,
-                child: Wrap(
-                  children: chipsChildren,
-                  spacing: 4.0,
-                  runSpacing: 4.0,
+                child: Container(
+                  constraints: widget.inputConstraints ?? BoxConstraints(minHeight: 32.0),
+                  child: Wrap(
+                    children: chipsChildren,
+                    spacing: 4.0,
+                    runSpacing: 4.0,
+                  ),
                 ),
               ),
             ),
