@@ -101,7 +101,6 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
   LayerLink _layerLink = LayerLink();
   Size size;
   Map<T, String> _enteredTexts = {};
-  Map<T, String> get data => _enteredTexts;
 
   TextInputConfiguration get textInputConfiguration => TextInputConfiguration(
         inputType: widget.inputType,
@@ -254,6 +253,15 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
     if (widget.enabled) {
       _chips.remove(data);
       if (_enteredTexts.containsKey(data)) _enteredTexts.remove(data);
+      _updateTextInputState();
+      widget.onChanged(_chips.toList(growable: false));
+    }
+  }
+
+  cleanChips() {
+    if (widget.enabled) {
+      _chips.clear();
+      _enteredTexts.clear();
       _updateTextInputState();
       widget.onChanged(_chips.toList(growable: false));
     }
