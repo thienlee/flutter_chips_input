@@ -9,7 +9,8 @@ import 'text_cursor.dart';
 
 typedef ChipsInputSuggestions<T> = FutureOr<List<T>> Function(String query);
 typedef ChipSelected<T> = void Function(T data, bool selected);
-typedef ChipsBuilder<T> = Widget Function(BuildContext context, ChipsInputState<T> state, T data);
+typedef ChipsBuilder<T> = Widget Function(
+    BuildContext context, ChipsInputState<T> state, T data);
 
 const kObjectReplacementChar = 0xFFFD;
 
@@ -18,7 +19,9 @@ extension on TextEditingValue {
         text.codeUnits.where((ch) => ch != kObjectReplacementChar),
       );
 
-  List<int> get replacementCharacters => text.codeUnits.where((ch) => ch == kObjectReplacementChar).toList(growable: false);
+  List<int> get replacementCharacters => text.codeUnits
+      .where((ch) => ch == kObjectReplacementChar)
+      .toList(growable: false);
 
   int get replacementCharactersCount => replacementCharacters.length;
 }
@@ -89,7 +92,8 @@ class ChipsInput<T> extends StatefulWidget {
   ChipsInputState<T> createState() => ChipsInputState<T>();
 }
 
-class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient {
+class ChipsInputState<T> extends State<ChipsInput<T>>
+    implements TextInputClient {
   Set<T> _chips = Set<T>();
   List<T> _suggestions;
   StreamController<List<T>> _suggestionsStreamController;
@@ -112,18 +116,22 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
         textCapitalization: widget.textCapitalization,
       );
 
-  bool get _hasInputConnection => _textInputConnection != null && _textInputConnection.attached;
+  bool get _hasInputConnection =>
+      _textInputConnection != null && _textInputConnection.attached;
 
-  bool get _hasReachedMaxChips => widget.maxChips != null && _chips.length >= widget.maxChips;
+  bool get _hasReachedMaxChips =>
+      widget.maxChips != null && _chips.length >= widget.maxChips;
 
   FocusAttachment _focusAttachment;
   FocusNode _focusNode;
 
-  FocusNode get _effectiveFocusNode => widget.focusNode ?? (_focusNode ??= FocusNode());
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode());
 
   RenderBox get renderBox => context.findRenderObject();
 
-  String get text => _value?.text?.replaceAll(String.fromCharCode(kObjectReplacementChar), '');
+  String get text =>
+      _value?.text?.replaceAll(String.fromCharCode(kObjectReplacementChar), '');
 
   @override
   void initState() {
@@ -169,7 +177,10 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
         var size = renderBox.size;
         var renderBoxOffset = renderBox.localToGlobal(Offset.zero);
         var topAvailableSpace = renderBoxOffset.dy;
-        var bottomAvailableSpace = MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - renderBoxOffset.dy - size.height;
+        var bottomAvailableSpace = MediaQuery.of(context).size.height -
+            MediaQuery.of(context).viewInsets.bottom -
+            renderBoxOffset.dy -
+            size.height;
         var _suggestionBoxHeight = max(topAvailableSpace, bottomAvailableSpace);
         var showTop = topAvailableSpace > bottomAvailableSpace;
         // print("showTop: $showTop" );
@@ -269,7 +280,8 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
 
   void _openInputConnection() {
     if (!_hasInputConnection) {
-      _textInputConnection = TextInput.attach(this, textInputConfiguration)..setEditingState(_value);
+      _textInputConnection = TextInput.attach(this, textInputConfiguration)
+        ..setEditingState(_value);
     }
     _textInputConnection.show();
 
@@ -285,7 +297,8 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
     final localId = ++_searchId;
     final results = await widget.findSuggestions(value);
     if (_searchId == localId && mounted) {
-      _suggestions = results.where((r) => !_chips.contains(r)).toList(growable: false);
+      _suggestions =
+          results.where((r) => !_chips.contains(r)).toList(growable: false);
     }
     _suggestionsStreamController.add(_suggestions);
   }
@@ -305,9 +318,11 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
     if (value.text != _oldTextEditingValue.text) {
       setState(() {
         _value = value;
-        _onTextChanged(value.text.replaceAll(String.fromCharCode(kObjectReplacementChar), ''));
+        _onTextChanged(value.text
+            .replaceAll(String.fromCharCode(kObjectReplacementChar), ''));
       });
-      if (value.replacementCharactersCount < _oldTextEditingValue.replacementCharactersCount) {
+      if (value.replacementCharactersCount <
+          _oldTextEditingValue.replacementCharactersCount) {
         var removedChip = _chips.last;
         _chips = Set.from(_chips.take(value.replacementCharactersCount));
         widget.onChanged(_chips.toList(growable: false));
@@ -325,7 +340,10 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
   }
 
   void _updateTextInputState({replaceText = false, putText = ''}) {
-    final updatedText = String.fromCharCodes(_chips.map((_) => kObjectReplacementChar)) + "${replaceText ? '' : _value.normalCharactersText}" + putText;
+    final updatedText =
+        String.fromCharCodes(_chips.map((_) => kObjectReplacementChar)) +
+            "${replaceText ? '' : _value.normalCharactersText}" +
+            putText;
     setState(() {
       _value = _value.copyWith(
         text: updatedText,
@@ -401,7 +419,9 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
 
   @override
   Widget build(BuildContext context) {
-    var chipsChildren = _chips.map<Widget>((data) => widget.chipBuilder(context, this, data)).toList();
+    var chipsChildren = _chips
+        .map<Widget>((data) => widget.chipBuilder(context, this, data))
+        .toList();
 
     final theme = Theme.of(context);
 
@@ -418,10 +438,13 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
                 _value.normalCharactersText,
                 maxLines: 1,
                 overflow: widget.textOverflow,
-                style: widget.textStyle ?? theme.textTheme.subtitle1.copyWith(height: 1.5),
+                style: widget.textStyle ??
+                    theme.textTheme.subtitle1.copyWith(height: 1.5),
               ),
             ),
-            Flexible(flex: 0, child: TextCursor(resumed: _effectiveFocusNode.hasFocus)),
+            Flexible(
+                flex: 0,
+                child: TextCursor(resumed: _effectiveFocusNode.hasFocus)),
           ],
         ),
       ),
@@ -450,7 +473,8 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
                 isFocused: _effectiveFocusNode.hasFocus,
                 isEmpty: _value.text.length == 0 && _chips.length == 0,
                 child: Container(
-                  constraints: widget.inputConstraints ?? BoxConstraints(minHeight: 32.0),
+                  constraints: widget.inputConstraints ??
+                      BoxConstraints(minHeight: 32.0),
                   child: Wrap(
                     children: chipsChildren,
                     spacing: 4.0,
@@ -468,4 +492,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>> implements TextInputClient
       ),
     );
   }
+
+  @override
+  AutofillScope get currentAutofillScope => null;
 }
