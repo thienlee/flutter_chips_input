@@ -495,4 +495,7 @@ class ChipsInputState<T> extends State<ChipsInput<T>>
 
   @override
   AutofillScope get currentAutofillScope => null;
+
+  @override
+  void performPrivateCommand(String action, Map<String, dynamic> data) {}
 }
